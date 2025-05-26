@@ -7,24 +7,23 @@ jobs:
   build-and-test:
     runs-on: windows-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0'
     - name: Dummy Restore Step
-      run: "Write-Host \"\u2705 Simulating dotnet restore (no .sln needed)\"\n"
+      run: "Write-Host \"\u2705 Simulating dotnet restore (no .sln needed)\"
+"
     - name: Install dotnet-sonarscanner
       run: 'dotnet tool install -g dotnet-sonarscanner
 
         '
     - name: Begin SonarScanner
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      run: 'dotnet sonarscanner begin /k:"GitHubActionsDemo" /d:sonar.host.url=${SONAR_HOST_URL}
-        /d:sonar.token=${SONAR_TOKEN}
+        SONAR_TOKEN: $SONAR_TOKEN
+        SONAR_HOST_URL: $SONAR_HOST_URL
+      run: 'dotnet sonarscanner begin /k:"github.com/$GITHUB_REPOSITORY" /d:sonar.host.url=$SONAR_HOST_URL
+        /d:sonar.token=$SONAR_TOKEN
 
         '
     - name: Build
@@ -33,12 +32,10 @@ jobs:
         '
     - name: End SonarScanner
       env:
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      run: 'dotnet sonarscanner end /d:sonar.host.url=${SONAR_HOST_URL} /d:sonar.token=${SONAR_TOKEN}
+        SONAR_TOKEN: $SONAR_TOKEN
+        SONAR_HOST_URL: $SONAR_HOST_URL
+      run: 'dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
         '
-    - name: Restore and Test with Coverage
-      run: 'dotnet restore
-
-        dotnet test --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover'
+    - name: Test with XPlat Code Coverage
+      run: dotnet test --configuration Release --collect "XPlat Code Coverage"

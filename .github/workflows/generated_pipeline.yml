@@ -1,29 +1,25 @@
-name: Terraform Automation
+name: .NET Core
 on:
   push:
     branches:
     - main
 jobs:
-  terraform:
-    runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: windows-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
       with:
-        terraform_version: 1.3.5
-    - name: Terraform Init
-      run: 'terraform init
-
-        '
-    - name: Terraform Validate
-      run: 'terraform validate
-
-        '
-    - name: Terraform Plan
-      run: "if [ -n \"$(find . -name '*.tf')\" ]; then\n  terraform plan\nelse\n \
-        \ echo \"No .tf files found, skipping terraform plan\"\nfi\n"
-    - name: Terraform Apply
-      run: "if [ -n \"$(find . -name '*.tf')\" ]; then\n  terraform apply -auto-approve\n\
-        else\n  echo \"No .tf files found, skipping terraform apply\"\nfi"
+        dotnet-version: 6.0.x
+    - name: Install dotnet-sonarscanner
+      run: dotnet tool install -g dotnet-sonarscanner
+    
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release
+    
+    - name: Test with coverage
+      run: dotnet test --configuration Release --collect:"XPlat Code Coverage"

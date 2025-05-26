@@ -1,0 +1,16 @@
+You are an expert DevOps engineer. Convert the following Azure DevOps pipeline YAML into a valid GitHub Actions workflow (in YAML format). Only return the converted GitHub Actions YAML file.
+
+Must follow these rules:
+1. Use only valid GitHub Actions syntax.
+2. The workflow must run on `windows-latest`.
+3. Setup the correct .NET SDK using `actions/setup-dotnet@v3`.
+4. Use `dotnet restore`, `dotnet build`, and `dotnet test` with `"XPlat Code Coverage"`.
+5. **Use `dotnet-sonarscanner` correctly:**
+    - Install it using `dotnet tool install -g dotnet-sonarscanner` in a separate step.
+    - Use `dotnet sonarscanner begin ...`, followed by `dotnet build`, then `dotnet sonarscanner end`.
+6. Use GitHub Secrets like `SONAR_TOKEN` and `SONAR_HOST_URL`.
+7. Make sure the YAML syntax is clean, valid, and all steps are logically ordered.
+8. Do not include explanation, only return the final YAML.
+
+Azure DevOps YAML:
+{{ infra_description }}

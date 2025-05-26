@@ -1,12 +1,4 @@
-You are an expert DevOps engineer. Convert the following Terraform configuration into an equivalent GitHub Actions workflow (in YAML format) that can automate Terraform commands such as init, validate, plan, and apply. Only return the converted GitHub Actions YAML file. Do not include any other explanation or metadata.
-
-1. Use only valid GitHub Actions syntax.
-2. Ensure the workflow includes steps to install and run Terraform.
-3. Do not include set-output (it is deprecated); use environment files if needed.
-4. Before running terraform plan or terraform apply, check if any .tf files are present in the working directory. Skip these steps if no .tf files are found.
-5. Do not include a separate step to check for .tf files instead, handle the logic inline using shell scripting within the respective steps.
-6. Ensure the YAML is minimal, valid, and properly formatted.
-7. Only return the final GitHub Actions YAML. Do not include explanations or comments.
+You are an expert DevOps engineer. Convert the following Terraform configuration into an equivalent GitHub Actions workflow (in YAML format) that can automate Terraform commands such as `init`, `validate`, `plan`, and `apply`. Only return the converted GitHub Actions YAML file. Do not include any other explanation or metadata.
 
 Terraform Configuration:
 {{ infra_description }}

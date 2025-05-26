@@ -91,6 +91,160 @@ def remove_java_gradle_steps(yaml_content: str) -> str:
     except yaml.YAMLError as e:
         print(f"❌ YAML parsing failed: {e}")
         return None
+    
+    
+
+def fix_sonar_scanner_commands(yaml_content: str) -> str:
+    """
+    Fix common issues with SonarScanner usage in GitHub Actions workflows.
+    """
+    try:
+        # Replace ${{ secrets.VAR }} with $VAR
+        yaml_content = re.sub(r'\${{\s*secrets\.([A-Z0-9_]+)\s*}}', r'$\1', yaml_content)
+        
+        # Replace ${VAR} with $VAR in shell run blocks
+        yaml_content = re.sub(r'\$\{(\w+)\}', r'$\1', yaml_content)
+        
+        # Replace /s:$SONAR_TOKEN with /d:sonar.login
+        yaml_content = re.sub(r'/s:\$\w+', r'/d:sonar.login="$SONAR_TOKEN"', yaml_content)
+        
+        # Fix /d:$SONAR_HOST_URL with correct sonar.host.url
+        yaml_content = re.sub(r'/d:\$SONAR_HOST_URL', r'/d:sonar.host.url="$SONAR_HOST_URL"', yaml_content)
+        
+        # Clean newline issues
+        yaml_content = re.sub(r'\\n\s*', r'\n', yaml_content)
+        yaml_content = re.sub(r'\\\s*\n\s*', r' \\\n', yaml_content)
+
+        # Optional: Replace multiline `run:` for Begin block with cleaner version
+        sonar_begin_pattern = re.compile(
+            r'(?<=- name: Begin SonarQube analysis\n  run: )(.*?)(?=\n\s*- name:|\Z)', re.DOTALL
+        )
+
+        fixed_sonar_begin = (
+            '|\n'
+            '    dotnet sonarscanner begin \\\n'
+            '      /k:$SONAR_PROJECT_KEY \\\n'
+            '      /n:$SONAR_PROJECT_NAME \\\n'
+            '      /d:sonar.host.url="$SONAR_HOST_URL" \\\n'
+            '      /d:sonar.login="$SONAR_TOKEN"'
+        )
+
+        yaml_content = sonar_begin_pattern.sub(fixed_sonar_begin, yaml_content)
+
+        # Fix sonarscanner end command
+        yaml_content = re.sub(
+            r'dotnet sonarscanner end[^\n]*',
+            'dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"',
+            yaml_content
+        )
+
+        return yaml_content
+
+    except Exception as e:
+        logger.error(f"❌ Error while fixing SonarScanner commands: {e}")
+        return yaml_content
+
+
+
+def remove_sonar_scanner_steps(yaml_content: str) -> str:
+    """
+    Removes steps related to SonarScanner from a GitHub Actions YAML file.
+    """
+    try:
+        # Remove "Install SonarScanner" step
+        yaml_content = re.sub(
+            r'- name: Install SonarScanner[\s\S]*?run: dotnet tool install -g dotnet-sonarscanner[\s\S]*?(?=\n\s*- name:|\Z)', 
+            '', yaml_content, flags=re.MULTILINE
+        )
+
+        # Remove "Begin SonarQube analysis" step
+        yaml_content = re.sub(
+            r'- name: Begin SonarQube analysis[\s\S]*?dotnet sonarscanner begin[\s\S]*?(?=\n\s*- name:|\Z)', 
+            '', yaml_content, flags=re.MULTILINE
+        )
+
+        # Remove "End SonarQube analysis" step
+        yaml_content = re.sub(
+            r'- name: End SonarQube analysis[\s\S]*?dotnet sonarscanner end[^\n]*[\s\S]*?(?=\n\s*- name:|\Z)', 
+            '', yaml_content, flags=re.MULTILINE
+        )
+
+        return yaml_content
+
+    except Exception as e:
+        logger.error(f"❌ Error while removing SonarScanner steps: {e}")
+        return yaml_content
+    
+    
+
+import re
+
+def remove_dotnet_restore_step(yaml_content: str) -> str:
+    """
+    Removes GitHub Actions steps that run 'dotnet restore'.
+    Handles variants like 'dotnet restore **/*.csproj'.
+    """
+    try:
+        # This regex matches any step block that contains 'dotnet restore'
+        pattern = re.compile(
+            r'- name:.*?(?:\n\s{2,}.*?)*?run:.*?dotnet restore[^\n]*?(?:\n\s{2,}.*?)*?(?=\n\s*- name:|\Z)',
+            re.MULTILINE | re.DOTALL
+        )
+
+        # Substitute matched block with empty string
+        cleaned_yaml = pattern.sub('', yaml_content)
+
+        return cleaned_yaml.strip()
+
+    except Exception as e:
+        print(f"❌ Error while removing dotnet restore step: {e}")
+        return yaml_content
+
+
+
+
+def remove_dotnet_build_step(yaml_content: str) -> str:
+    """
+    Removes GitHub Actions steps that run 'dotnet build'.
+    Handles variants like 'dotnet build **/*.csproj'.
+    """
+    try:
+        pattern = re.compile(
+            r'- name:.*?(?:\n\s{2,}.*?)*?run:.*?dotnet build[^\n]*?(?:\n\s{2,}.*?)*?(?=\n\s*- name:|\Z)',
+            re.MULTILINE | re.DOTALL
+        )
+
+        cleaned_yaml = pattern.sub('', yaml_content)
+
+        return cleaned_yaml.strip()
+
+    except Exception as e:
+        print(f"❌ Error while removing dotnet build step: {e}")
+        return yaml_content
+
+
+
+
+
+def remove_dotnet_test_step(yaml_content: str) -> str:
+    """
+    Removes GitHub Actions steps that run 'dotnet test'.
+    Handles variants like 'dotnet test **/*Tests/*.csproj'.
+    """
+    try:
+        pattern = re.compile(
+            r'- name:.*?(?:\n\s{2,}.*?)*?run:.*?dotnet test[^\n]*?(?:\n\s{2,}.*?)*?(?=\n\s*- name:|\Z)',
+            re.MULTILINE | re.DOTALL
+        )
+
+        cleaned_yaml = pattern.sub('', yaml_content)
+        return cleaned_yaml.strip()
+
+    except Exception as e:
+        print(f"❌ Error while removing dotnet test step: {e}")
+        return yaml_content
+
+
 
 
 def push_to_github(state: DevOpsState) -> DevOpsState:
@@ -118,6 +272,12 @@ def push_to_github(state: DevOpsState) -> DevOpsState:
     workflow_content = clean_yaml_fences(workflow_content)
     workflow_content = fix_setup_java_distribution(workflow_content)
     workflow_content = remove_java_gradle_steps(workflow_content)
+    workflow_content = fix_sonar_scanner_commands(workflow_content)
+    workflow_content = remove_sonar_scanner_steps(workflow_content)
+    # workflow_content = remove_dotnet_restore_step(workflow_content)
+    # workflow_content = remove_dotnet_build_step(workflow_content)
+    # workflow_content = remove_dotnet_test_step(workflow_content)
+    workflow_content = workflow_content.replace("/t:$SONAR_TOKEN", '/d:sonar.login="$SONAR_TOKEN"')
     workflow_content = workflow_content.replace("true:", "on:")
     workflow_content = workflow_content.encode("utf-8", "ignore").decode("utf-8")
 

@@ -41,3 +41,16 @@ Improve it by:
   "infra_description": "resource \"aws_instance\" \"web\" {\n  ami = \"ami-0c55b159cbfafe1f0\"\n  instance_type = \"t2.micro\"\n}",
   "prompt_name": "terraform_module.j2"
 }
+
+
+
+{
+  "infra_description": "trigger:\n  - main\n\npool:\n  vmImage: 'windows-latest'\n\nvariables:\n  buildConfiguration: 'Release'\n  sonarProjectKey: 'DummyProjectKey'\n  sonarProjectName: 'DummyProjectName'\n  sonarHostUrl: 'https://dummy-sonarqube-url.com'\n  sonarLogin: 'dummy_token_123456'\n\nsteps:\n- task: UseDotNet@2\n  inputs:\n    packageType: 'sdk'\n    version: '6.0.x'\n\n- task: SonarQubePrepare@5\n  inputs:\n    SonarQube: 'DummyServiceConnection'\n    scannerMode: 'MSBuild'\n    projectKey: '$(sonarProjectKey)'\n    projectName: '$(sonarProjectName)'\n    extraProperties: |\n      sonar.exclusions=**/bin/**,**/obj/**\n      sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/**/coverage.opencover.xml\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'restore'\n    projects: '**/*.csproj'\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'build'\n    projects: '**/*.csproj'\n    arguments: '--configuration $(buildConfiguration)'\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'test'\n    projects: '**/*Tests/*.csproj'\n    arguments: '--configuration $(buildConfiguration) --collect:\"XPlat Code Coverage\"'\n    publishTestResults: true\n\n- task: SonarQubeAnalyze@5\n\n- task: SonarQubePublish@5\n  inputs:\n    pollingTimeoutSec: '300'",
+  "prompt_name": "Azure_DevOps_pipeline.j2"
+}
+
+
+{
+  "infra_description": "trigger:\n  - main\n\npool:\n  vmImage: 'windows-latest'\n\nvariables:\n  buildConfiguration: 'Release'\n  sonarProjectKey: 'DummyProjectKey'\n  sonarProjectName: 'DummyProjectName'\n  sonarHostUrl: 'https://dummy-sonarqube-url.com'\n  sonarLogin: 'dummy_token_123456'\n\nsteps:\n- task: UseDotNet@2\n  inputs:\n    packageType: 'sdk'\n    version: '6.0.x'\n\n- task: SonarQubePrepare@5\n  inputs:\n    SonarQube: 'DummyServiceConnection'\n    scannerMode: 'MSBuild'\n    projectKey: '$(sonarProjectKey)'\n    projectName: '$(sonarProjectName)'\n    extraProperties: |\n      sonar.exclusions=**/bin/**,**/obj/**\n      sonar.cs.opencover.reportsPaths=$(Build.SourcesDirectory)/dotnet-demo/**/coverage.opencover.xml\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'restore'\n    projects: 'dotnet-demo/DemoProject/DemoProject.csproj'\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'build'\n    projects: 'dotnet-demo/DemoProject/DemoProject.csproj'\n    arguments: '--configuration $(buildConfiguration)'\n\n- task: DotNetCoreCLI@2\n  inputs:\n    command: 'test'\n    projects: 'dotnet-demo/DemoProject/DemoProject.csproj'\n    arguments: '--configuration $(buildConfiguration) --collect:\"XPlat Code Coverage\"'\n    publishTestResults: true\n\n- task: SonarQubeAnalyze@5\n\n- task: SonarQubePublish@5\n  inputs:\n    pollingTimeoutSec: '300'",
+  "prompt_name": "Azure_DevOps_pipeline.j2"
+}

@@ -112,7 +112,7 @@ dev_agent_fn = None
 async def run_db_agent(request: SQLRequest):
     global db_agent_fn
     if db_agent_fn is None:
-        from backend.app.services.langgraph.db_graph import db_agent_main
+        from app.services.langgraph.db_graph import db_agent_main
         db_agent_fn = db_agent_main  # Cache it after first import
 
     prompt = request.prompt_name.strip() or "transform_identity.j2"
@@ -123,7 +123,7 @@ async def run_db_agent(request: SQLRequest):
 async def run_web_agent(request: WebRequest):
     global web_agent_fn
     if web_agent_fn is None:
-        from backend.app.services.langgraph.web_graph import web_agent_main
+        from app.services.langgraph.web_graph import web_agent_main
         web_agent_fn = web_agent_main  # Cache it after first import
 
     prompt = request.prompt_name.strip() or "convert_asp_net_to_react.j2"
@@ -138,7 +138,7 @@ async def run_test_agent(request: TestRequest):
     print("Received payload:", request)
     global test_agent_fn
     if test_agent_fn is None:
-        from backend.app.services.langgraph.test_graph import test_agent_main
+        from app.services.langgraph.test_graph import test_agent_main
         test_agent_fn = test_agent_main  # Cache it after first import
     prompt = request.prompt_name.strip() or "Convert_ReactPage_to_Playwright.j2"
     # prompt = request.prompt_name.strip() or (
@@ -160,7 +160,7 @@ async def run_test_agent(request: TestRequest):
 
 @app.post("/run-devops-agent/")
 async def run_devops_agent(request: DevOpsRequest):
-    prompt = (request.prompt_name or "").strip() or "terraform_module.j2"
+    prompt = (request.prompt_name or "").strip() or "Azure_DevOps_pipeline.j2"
 
     # Load GitHub credentials from environment
     gh_token = os.getenv("GH_TOKEN")

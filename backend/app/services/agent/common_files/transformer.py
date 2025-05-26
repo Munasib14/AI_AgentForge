@@ -89,7 +89,7 @@ def transform_test(state: dict, prompt_template="Convert_ReactPage_to_Playwright
 
     return state
 
-def transform_infra(state: DevOpsState, prompt_template="terraform_module.j2") -> DevOpsState:
+def transform_infra(state: DevOpsState, prompt_template="Azure_DevOps_pipeline.j2") -> DevOpsState:
     """
     Uses Groq model to transform infrastructure code.
     """

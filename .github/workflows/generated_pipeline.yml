@@ -4,22 +4,37 @@ on:
     branches:
     - main
 jobs:
-  build-and-test:
+  build:
     runs-on: windows-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup .NET SDK
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
+    - name: Begin SonarScanner
+      env:
+        SONAR_TOKEN: $SONAR_TOKEN
+        SONAR_HOST_URL: $SONAR_HOST_URL
+        SONAR_PROJECT_KEY: DummyProjectKey
+        SONAR_PROJECT_NAME: DummyProjectName
+      run: 'dotnet sonarscanner begin /k:"$SONAR_PROJECT_KEY" /n:"$SONAR_PROJECT_NAME"
+        /d:"$SONAR_HOST_URL" /t:"$SONAR_TOKEN" /exclusions:"**/bin/**,**/obj/**"
+
+        '
     - name: Restore dependencies
       run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
     - name: Build
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
+    - name: End SonarScanner
+      env:
+        SONAR_TOKEN: $SONAR_TOKEN
+        SONAR_HOST_URL: $SONAR_HOST_URL
+      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
     - name: Test
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"

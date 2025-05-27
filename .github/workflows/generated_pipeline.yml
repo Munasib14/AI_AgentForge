@@ -38,7 +38,12 @@ jobs:
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
     - name: Begin SonarQube analysis
-      run: 'dotnet sonarscanner begin  \ /k:"DummyProjectKey"  \ /n:"DummyProjectName"  \
+      run: 'dotnet sonarscanner begin ^
+  /k:"DummyProjectKey" ^
+  /n:"DummyProjectName" ^
+  /d:sonar.host.url="http://localhost:9000" ^
+  /d:sonar.login="1234567890abcdef1234567890abcdef12345678" ^
+  /d:sonar.exclusions="**/bin/**,**/obj/**"  \ /k:"DummyProjectKey"  \ /n:"DummyProjectName"  \
         /d:sonar.host.url="http://localhost:9000"  \ /d:sonar.login="1234567890abcdef1234567890abcdef12345678"  \ /d:sonar.exclusions="**/bin/**,**/obj/**"
 
         '

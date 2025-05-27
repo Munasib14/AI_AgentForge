@@ -30,26 +30,34 @@ echo 'using System; class \
 \ > dotnet-demo/DemoProject/Program.cs
 "
     - name: Install dotnet-sonarscanner
-      run: dotnet tool install -g dotnet-sonarscanner
-    - name: SonarQube begin
+      run: 'dotnet tool install -g dotnet-sonarscanner
+
+        '
+    - name: Begin SonarQube analysis
       env:
         SONAR_TOKEN: $SONAR_TOKEN
         SONAR_HOST_URL: $SONAR_HOST_URL
-        SONAR_PROJECT_KEY: DummyProjectKey
-        SONAR_PROJECT_NAME: DummyProjectName
-      run: 'dotnet sonarscanner begin /k:"DummyProjectKey" /n:"DummyProjectName" /d:sonar.host.url=$SONAR_HOST_URL
-        /d:sonar.login=$SONAR_TOKEN /d:sonar.exclusions="**/bin/**,**/obj/**" /d:sonar.cs.opencover.reportsPaths=dotnet-demo/**/coverage.opencover.xml
+        sonarProjectKey: DummyProjectKey
+        sonarProjectName: DummyProjectName
+      run: 'dotnet sonarscanner begin /k:$sonarProjectKey /n:$sonarProjectName /d:sonar.host.url=$SONAR_HOST_URL
+        /d:sonar.login=$SONAR_TOKEN /d:sonar.exclusions=**/bin/**,**/obj/**
 
         '
-    - name: Restore
-      run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
+    - name: Restore dependencies
+      run: 'dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
+
+        '
     - name: Build
-      run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
+      run: 'dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
-    - name: Test with coverage
-      run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
-        Release --collect:"XPlat Code Coverage"
-    - name: SonarQube end
+
+        '
+    - name: End SonarQube analysis
       env:
         SONAR_TOKEN: $SONAR_TOKEN
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+      run: 'dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+
+        '
+    - name: Test
+      run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
+        Release --collect:"XPlat Code Coverage"

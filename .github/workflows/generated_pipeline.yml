@@ -4,7 +4,7 @@ on:
     branches:
     - main
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -15,30 +15,11 @@ jobs:
         dotnet-version: 6.0.x
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
-    - name: Begin SonarScanner
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-        sonarProjectKey: DummyProjectKey
-        sonarProjectName: DummyProjectName
-      run: 'dotnet sonarscanner begin /k:$sonarProjectKey /n:$sonarProjectName /d:sonar.host.url="$SONAR_HOST_URL"
-        /d:sonar.login="$SONAR_TOKEN" /exclusions:**/bin/**,**/obj/**
-
-        '
-    - name: Restore
+    - name: Restore dependencies
       run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
     - name: Build
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
-    - name: Test with coverage
+    - name: Test
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"
-    - name: End SonarScanner
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
-'on':
-  push:
-    branches:
-    - main

@@ -7,35 +7,21 @@ jobs:
   build-and-test:
     runs-on: windows-latest
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
     - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0'
-    - name: Dummy Restore Step
-      run: "Write-Host \"\u2705 Simulating dotnet restore (no .sln needed)\"
-"
+        dotnet-version: 6.0.x
     - name: Install dotnet-sonarscanner
-      run: 'dotnet tool install -g dotnet-sonarscanner
-
-        '
-    - name: Begin SonarScanner
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-      run: 'dotnet sonarscanner begin /k:"github.com/$GITHUB_REPOSITORY" /d:sonar.host.url=$SONAR_HOST_URL
-        /d:sonar.token=$SONAR_TOKEN
-
-        '
+      run: dotnet tool install -g dotnet-sonarscanner
+    
+    - name: Restore dependencies
+      run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
     - name: Build
-      run: 'dotnet build
-
-        '
-    - name: End SonarScanner
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-      run: 'dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
-
-        '
-    - name: Test with XPlat Code Coverage
-      run: dotnet test --configuration Release --collect "XPlat Code Coverage"
+      run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
+        Release
+    
+    - name: Test
+      run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
+        Release --collect:"XPlat Code Coverage"

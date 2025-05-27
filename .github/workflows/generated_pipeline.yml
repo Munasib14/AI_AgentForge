@@ -47,7 +47,17 @@ jobs:
         Release --collect:"XPlat Code Coverage"
     - name: Create dummy .NET project
       shell: pwsh
-      run: "mkdir dotnet-demo\nmkdir dotnet-demo/DemoProject\n\n$csproj = @\"\n<Project\
+      run: "
+    if (Test-Path "dotnet-demo") {
+        Remove-Item -Recurse -Force "dotnet-demo"
+        }
+        mkdir "dotnet-demo"
+        \n
+    if (Test-Path "dotnet-demo") {
+        Remove-Item -Recurse -Force "dotnet-demo"
+        }
+        mkdir "dotnet-demo"
+        /DemoProject\n\n$csproj = @\"\n<Project\
         \ Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n\
         \    <TargetFramework>net6.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n\
         \"@\n$csproj | Out-File -FilePath dotnet-demo/DemoProject/DemoProject.csproj\

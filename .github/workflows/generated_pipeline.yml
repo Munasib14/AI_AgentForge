@@ -45,12 +45,4 @@ jobs:
     - name: Test project with code coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"
-    - name: Create dummy .NET project
-      shell: pwsh
-      run: "\n/DemoProject\n\n$csproj = @\"\n<Project\
-        \ Sdk=\"Microsoft.NET.Sdk\">\n  <PropertyGroup>\n    <OutputType>Exe</OutputType>\n\
-        \    <TargetFramework>net6.0</TargetFramework>\n  </PropertyGroup>\n</Project>\n\
-        \"@\n$csproj | Out-File -FilePath dotnet-demo/DemoProject/DemoProject.csproj\
-        \ -Encoding utf8\n\n$program = @\"\nusing System;\nclass Program {\n    static\
-        \ void Main() => Console.WriteLine(\"Hello, World!\");\n}\n\"@\n$program |\
-        \ Out-File -FilePath dotnet-demo/DemoProject/Program.cs -Encoding utf8"
+    

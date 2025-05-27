@@ -6,9 +6,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      SONAR_TOKEN: $SONAR_TOKEN
-      SONAR_HOST_URL: $SONAR_HOST_URL
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -38,8 +35,11 @@ jobs:
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
     - name: Begin SonarQube analysis
+      env:
+        SONAR_TOKEN: 1234567890abcdef1234567890abcdef12345678
+        SONAR_HOST_URL: http://localhost:9000
       run: 'dotnet sonarscanner begin  \ /k:"DummyProjectKey"  \ /n:"DummyProjectName"  \
-        /d:sonar.host.url="$SONAR_HOST_URL"  \ /d:sonar.login="$SONAR_TOKEN"  \ /d:sonar.exclusions="**/bin/**,**/obj/**"
+        /d:sonar.host.url="http://localhost:9000"  \ /d:sonar.login="1234567890abcdef1234567890abcdef12345678"  \ /d:sonar.exclusions="**/bin/**,**/obj/**"
 
         '
     - name: Restore dependencies
@@ -48,7 +48,9 @@ jobs:
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
     - name: End SonarQube analysis
-      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+      env:
+        SONAR_TOKEN: 1234567890abcdef1234567890abcdef12345678
+      run: dotnet sonarscanner end /d:sonar.login="1234567890abcdef1234567890abcdef12345678"
     - name: Test project with code coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"

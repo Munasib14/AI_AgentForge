@@ -21,7 +21,8 @@ jobs:
       env:
         SONAR_TOKEN: $SONAR_TOKEN
         SONAR_HOST_URL: $SONAR_HOST_URL
-      run: "dotnet sonarscanner begin ^\n  /k:\"DummyProjectKey\" ^\n  /n:\"DummyProjectName\" ^\n  /d:sonar.host.url=\"%SONAR_HOST_URL%\" ^\n  /d:sonar.login=\"%SONAR_TOKEN%\" ^\n  /d:sonar.exclusions=\"**/bin/**,**/obj/**\"\n"
+      run: "dotnet sonarscanner begin ^\n  /k:\"DemoProjectKey\" ^\n  /n:\"DemoProjectName\" ^\n  /d:sonar.host.url=\"https://demo-sonarqube.example.com\" ^\n  /d:sonar.login=\"demoToken123\" ^\n  /d:sonar.exclusions=\"**/bin/**,**/obj/**\"\n"
+      shell: cmd
     - name: Restore Dependencies
       run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
     - name: Build Project

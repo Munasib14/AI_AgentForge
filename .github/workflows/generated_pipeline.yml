@@ -8,7 +8,7 @@ jobs:
     runs-on: windows-latest
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v2
     - name: Setup .NET6 SDK
       uses: actions/setup-dotnet@v3
       with:
@@ -21,7 +21,7 @@ jobs:
       env:
         SONAR_TOKEN: $SONAR_TOKEN
         SONAR_HOST_URL: $SONAR_HOST_URL
-      run: "dotnet sonarscanner begin `\n  /k:\"DummyProjectKey\" `\n  /n:\"DummyProjectName\" `\n  /d:sonar.host.url=\"$env:SONAR_HOST_URL\" `\n  /d:sonar.login=\"$env:SONAR_TOKEN\" `\n  /d:sonar.exclusions=\"**/bin/**,**/obj/**\"\n"
+      run: "dotnet sonarscanner begin ^\n  /k:\"DummyProjectKey\" ^\n  /n:\"DummyProjectName\" ^\n  /d:sonar.host.url=\"%SONAR_HOST_URL%\" ^\n  /d:sonar.login=\"%SONAR_TOKEN%\" ^\n  /d:sonar.exclusions=\"**/bin/**,**/obj/**\"\n"
     - name: Restore Dependencies
       run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
     - name: Build Project

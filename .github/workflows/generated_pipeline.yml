@@ -1,10 +1,10 @@
-name: .NET6 SonarQube Analysis
+name: .NET6 Demo
 on:
   push:
     branches:
     - main
 jobs:
-  build-and-analyze:
+  build-and-test:
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -14,16 +14,32 @@ jobs:
       with:
         dotnet-version: 6.0.x
     - name: Create Dummy .NET6 Project
-      run: 'mkdir dotnet-demo mkdir dotnet-demo/DemoProject echo ^<Project Sdk=" Microsoft.NET.Sdk"^>
-        > dotnet-demo/DemoProject/DemoProject.csproj echo ^  ^<PropertyGroup^> >>
-        dotnet-demo/DemoProject/DemoProject.csproj echo ^  ^<OutputType^>Exe^</OutputType^>
-        >> dotnet-demo/DemoProject/DemoProject.csproj echo ^ ^<TargetFramework^>net6.0^</TargetFramework^>
-        >> dotnet-demo/DemoProject/DemoProject.csproj echo ^ ^</PropertyGroup^> >>
-        dotnet-demo/DemoProject/DemoProject.csproj echo ^</Project^> >> dotnet-demo/DemoProject/DemoProject.csproj
+      run: "mkdir dotnet-demo
+mkdir dotnet-demo/DemoProject
+echo ^<Project Sdk=\" \
+Microsoft.NET.Sdk\"^> > dotnet-demo/DemoProject/DemoProject.csproj
+echo ^ \
+\ ^<PropertyGroup^> >> dotnet-demo/DemoProject/DemoProject.csproj
+echo ^ \
+\ ^<OutputType^>Exe^</OutputType^> >> dotnet-demo/DemoProject/DemoProject.csproj
+ \
+echo ^ ^<TargetFramework^>net6.0^</TargetFramework^> >> dotnet-demo/DemoProject/DemoProject.csproj
+ \
+echo ^ ^</PropertyGroup^> >> dotnet-demo/DemoProject/DemoProject.csproj
+ \
+echo ^</Project^> >> dotnet-demo/DemoProject/DemoProject.csproj
 
-        $programCode  = @" using System; class Program { static void Main() => Console.WriteLine("
-        Hello, World!"); } "@ Set-Content -Path dotnet-demo/DemoProject/Program.cs  -Value
-        $programCode '
+$programCode \
+\ = @\"
+using System;
+class Program {
+static void Main() => Console.WriteLine(\" \
+Hello, World!\");
+}
+\"@
+Set-Content -Path dotnet-demo/DemoProject/Program.cs \
+\ -Value $programCode
+"
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
     - name: Begin SonarQube Analysis
@@ -55,7 +71,3 @@ jobs:
     - name: Run Tests with Code Coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"
-'on':
-  push:
-    branches:
-    - main

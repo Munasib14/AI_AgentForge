@@ -1,48 +1,77 @@
-name: .NET6 CI with SonarQube
+name: .NET6 Demo Workflow
 on:
   push:
     branches:
     - main
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
-    env:
-      SONAR_TOKEN: $SONAR_TOKEN
-      SONAR_HOST_URL: $SONAR_HOST_URL
     steps:
-    - name: Checkout repository
+    - name: Checkout code
       uses: actions/checkout@v3
     - name: Setup .NET6 SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
-    - name: Create dummy .NET project
-      run: 'mkdir -p dotnet-demo/DemoProject
+    - name: Create Dummy .NET6 Project
+      run: 'mkdir dotnet-demo
 
-        echo ''<Project Sdk="Microsoft.NET.Sdk">'' > dotnet-demo/DemoProject/DemoProject.csproj
+        mkdir dotnet-demo/DemoProject
 
-        echo '' <PropertyGroup>'' >> dotnet-demo/DemoProject/DemoProject.csproj
+        echo ^<Project Sdk="Microsoft.NET.Sdk"^> > dotnet-demo/DemoProject/DemoProject.csproj
 
-        echo '' <OutputType>Exe</OutputType>'' >> dotnet-demo/DemoProject/DemoProject.csproj
+        echo ^ ^<PropertyGroup^> >> dotnet-demo/DemoProject/DemoProject.csproj
 
-        echo '' <TargetFramework>net6.0</TargetFramework>'' >> dotnet-demo/DemoProject/DemoProject.csproj
+        echo ^ ^<OutputType^>Exe^</OutputType^> >> dotnet-demo/DemoProject/DemoProject.csproj
 
-        echo '' </PropertyGroup>'' >> dotnet-demo/DemoProject/DemoProject.csproj
+        echo ^ ^<TargetFramework^>net6.0^</TargetFramework^> >> dotnet-demo/DemoProject/DemoProject.csproj
 
-        echo ''</Project>'' >> dotnet-demo/DemoProject/DemoProject.csproj
+        echo ^ ^</PropertyGroup^> >> dotnet-demo/DemoProject/DemoProject.csproj
 
-        echo ''using System; class Program { static void Main() => Console.WriteLine("Hello,
-        World!"); }'' > dotnet-demo/DemoProject/Program.cs
+        echo ^</Project^> >> dotnet-demo/DemoProject/DemoProject.csproj
+
+        echo using System; class Program { static void Main() => Console.WriteLine("Hello,
+        World!"); } > dotnet-demo/DemoProject/Program.cs
 
         '
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
-    - name: Restore dependencies
+    - name: Begin SonarQube Analysis
+      env:
+        SONAR_TOKEN: $SONAR_TOKEN
+        SONAR_HOST_URL: $SONAR_HOST_URL
+      run: 'dotnet sonarscanner begin ^
+
+        /k:"DummyProjectKey" ^
+
+        /n:"DummyProjectName" ^
+
+        /d:sonar.host.url="$SONAR_HOST_URL" ^
+
+        /d:sonar.login="$SONAR_TOKEN" ^
+
+        /d:sonar.exclusions="**/bin/**,**/obj/**"
+
+        '
+    - name: Restore Dependencies
       run: dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
-    - name: Build project
+    - name: Build Project
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
-    - name: Test project with code coverage
+    - name: End SonarQube Analysis
+      env:
+        SONAR_TOKEN: $SONAR_TOKEN
+      run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+    - name: Run Tests with Code Coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"
+  build:
+    runs-on: windows-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Setup .NET SDK
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
     

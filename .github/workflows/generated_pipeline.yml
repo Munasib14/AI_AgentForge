@@ -23,16 +23,6 @@ jobs:
       run: 'dotnet tool install -g dotnet-sonarscanner
 
         '
-    - name: Begin SonarQube scan
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-        SONAR_PROJECT_KEY: DummyProjectKey
-        SONAR_PROJECT_NAME: DummyProjectName
-      run: 'dotnet sonarscanner begin /k:"$SONAR_PROJECT_KEY" /n:"$SONAR_PROJECT_NAME"
-        /d:sonar.host.url="$SONAR_HOST_URL" /d:sonar.token="$SONAR_TOKEN" /d:sonar.exclusions="*/bin/,/obj/"
-
-        '
     - name: Restore dependencies
       run: 'dotnet restore dotnet-demo/DemoProject/DemoProject.csproj
 
@@ -40,13 +30,6 @@ jobs:
     - name: Build
       run: 'dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
-
-        '
-    - name: End SonarQube scan
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
-      run: 'dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
 
         '
     - name: Test

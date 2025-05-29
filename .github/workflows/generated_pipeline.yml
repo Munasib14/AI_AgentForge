@@ -4,7 +4,7 @@ on:
     branches:
     - main
 jobs:
-  build-and-test:
+  build-and-analyze:
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -55,7 +55,3 @@ jobs:
     - name: Run Tests with Code Coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release --collect:"XPlat Code Coverage"
-'on':
-  push:
-    branches:
-    - main

@@ -1,4 +1,4 @@
-name: .NET6 Demo Workflow
+name: .NET6 SonarQube Analysis
 on:
   push:
     branches:
@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-    - name: Setup .NET6 SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
@@ -37,18 +37,15 @@ jobs:
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
     - name: Begin SonarQube Analysis
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
       run: 'dotnet sonarscanner begin ^
 
         /k:"DummyProjectKey" ^
 
         /n:"DummyProjectName" ^
 
-        /d:sonar.host.url="$SONAR_HOST_URL" ^
+        /d:sonar.host.url=$SONAR_HOST_URL ^
 
-        /d:sonar.login="$SONAR_TOKEN" ^
+        /d:sonar.login=$SONAR_TOKEN ^
 
         /d:sonar.exclusions="**/bin/**,**/obj/**"
 
@@ -59,8 +56,6 @@ jobs:
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration
         Release
     - name: End SonarQube Analysis
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
       run: dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
     - name: Run Tests with Code Coverage
       run: dotnet test dotnet-demo/DemoProject/DemoProject.csproj --configuration

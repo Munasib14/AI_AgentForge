@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Setup .NET6 SDK
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
@@ -18,9 +18,6 @@ jobs:
     - name: Install dotnet-sonarscanner
       run: dotnet tool install -g dotnet-sonarscanner
     - name: Begin SonarQube Analysis
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
-        SONAR_HOST_URL: $SONAR_HOST_URL
       run: "echo \"Starting dummy SonarQube analysis...\" && ^\ndotnet sonarscanner begin ^\n  /k:\"DemoProjectKey\" ^\n  /n:\"DemoProjectName\" ^\n  /d:sonar.host.url=\"http://localhost:9000\" ^\n  /d:sonar.login=\"demoToken123\" ^\n  /d:sonar.exclusions=\"**/bin/**,**/obj/**\" || echo \"SonarQube server not reachable, continuing...\"\n"
       shell: cmd
       continue-on-error: true
@@ -29,8 +26,6 @@ jobs:
     - name: Build Project
       run: dotnet build dotnet-demo/DemoProject/DemoProject.csproj --configuration Release
     - name: End SonarQube Analysis
-      env:
-        SONAR_TOKEN: $SONAR_TOKEN
       run: "echo \"Ending dummy SonarQube analysis...\" && ^\ndotnet sonarscanner end ^\n  /d:sonar.login=\"demoToken123\" || echo \"Skipping end step, no valid token.\"\n"
       shell: cmd
       continue-on-error: true

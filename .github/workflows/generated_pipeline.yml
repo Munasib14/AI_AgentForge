@@ -2,7 +2,7 @@ name: .NET6 SonarQube Analysis
 on:
   push:
     branches:
-    - GenAi
+    - main
 jobs:
   build-and-analyze:
     runs-on: windows-latest
